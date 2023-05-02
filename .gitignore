@@ -1,0 +1,5 @@
+.vscode
+objects
+*.o
+philo
+tests
