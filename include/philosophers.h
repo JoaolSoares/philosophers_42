@@ -6,7 +6,7 @@
 /*   By: jlucas-s <jlucas-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/16 16:12:33 by jlucas-s          #+#    #+#             */
-/*   Updated: 2023/05/09 20:23:37 by jlucas-s         ###   ########.fr       */
+/*   Updated: 2023/05/15 20:33:01 by jlucas-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,16 +24,20 @@
 
 
 //  STRUCTS  //
-typedef struct s_philo
+typedef	struct s_philo
 {
-	int			tid;
-	long int	birth;
-	int			last_eat;
-	int 		eat_count;
-	int			max_eat;
-	int			time_to_die;
-	int			time_to_sleep;
-	int			time_to_eat;
+	int				id;
+	long int		birth;
+	int 			eat_count;
+	int				last_eat;
+	int				max_eat;
+	long int		init_time;
+	int				time_to_die;
+	int				time_to_sleep;
+	int				time_to_eat;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	*right_fork;
+	int				*death;
 
 }	t_philo;
 
@@ -44,7 +48,7 @@ int			ft_atoi(const char *nptr);
 long int	timestamp(long int init_time);
 
 // routine
-void		*routine(void *i);
+void		*routine(void *arg);
 
 
 #endif

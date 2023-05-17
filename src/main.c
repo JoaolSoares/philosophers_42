@@ -6,29 +6,43 @@
 /*   By: jlucas-s <jlucas-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/08 16:44:17 by jlucas-s          #+#    #+#             */
-/*   Updated: 2023/05/09 21:12:42 by jlucas-s         ###   ########.fr       */
+/*   Updated: 2023/05/15 21:26:26 by jlucas-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-t_philo	*init_philo_stats(int tid, long int init_time, char *argv[])
+t_philo	**init_all_philos(int num_philos, pthread_mutex_t *forks, char *argv[])
 {
-	t_philo	*philo;
+	t_philo			**table;
+	long int		init_time;
+	int				id;
+	int				num_deaths;
 
-	philo = (t_philo *)malloc(sizeof(t_philo));
-	philo->tid = tid;
-	philo->birth = init_time;
-	philo->last_eat = 0;
-	philo->eat_count = 0;
-	if (!argv[5])
-		philo->max_eat = -1;
-	else
-		philo->max_eat = ft_atoi(argv[5]);
-	philo->time_to_die = ft_atoi(argv[2]);
-	philo->time_to_eat = ft_atoi(argv[3]);
-	philo->time_to_sleep = ft_atoi(argv[4]);
-	return (philo);
+	table = (t_philo **)malloc(sizeof(t_philo) * num_philos);
+	init_time = timestamp(0);
+	num_deaths = 0;
+	id = -1;
+	while (++id < num_philos)
+	{
+		table[id] = (t_philo *)malloc(sizeof(t_philo));
+		table[id]->id = id;
+		table[id]->right_fork = &forks[id];
+		table[id]->left_fork = &forks[(id + 1) % num_philos];
+		table[id]->init_time = init_time;
+		table[id]->birth = init_time;
+		table[id]->last_eat = 0;
+		table[id]->eat_count = 0;
+		table[id]->time_to_die = ft_atoi(argv[2]);
+		table[id]->time_to_eat = ft_atoi(argv[3]);
+		table[id]->time_to_sleep = ft_atoi(argv[4]);
+		table[id]->death = &num_deaths;
+		if (!argv[5])
+			table[id]->max_eat = -1;
+		else
+			table[id]->max_eat = ft_atoi(argv[5]);
+	}
+	return (table);
 }
 
 int	arg_verification(int argc, char *argv[])
@@ -54,33 +68,32 @@ int	arg_verification(int argc, char *argv[])
 int	main(int argc, char *argv[])
 {
 	pthread_t		tid[ft_atoi(argv[1])];
-	t_philo			*table[ft_atoi(argv[1])];
-	long int		init_time;
-	long int		i;
+	pthread_mutex_t	forks[ft_atoi(argv[1])];
+	t_philo			**table;
+	long int		id;
 
 	if (!arg_verification(argc, argv))
 		return (1);
 
-	init_time = timestamp(0);
-	
-	i = -1;
-	while (++i < ft_atoi(argv[1]))
+	id = -1;
+	while (++id < ft_atoi(argv[1]))
+		pthread_mutex_init(&forks[id], NULL);
+	table = init_all_philos(ft_atoi(argv[1]), forks, argv);
+	id = -1;
+	while (++id < ft_atoi(argv[1]))
 	{
-		table[i] = init_philo_stats(i, init_time, argv);
-		if (pthread_create(&tid[i], NULL, &routine, (void *)table[i]) != 0)
-			return (i + 10);
+		if (pthread_create(&tid[id], NULL, routine, (void *)table[id]) != 0)
+			return (id + 10);
 	}
 
-
-
-	
-	i = -1;
-	while (++i < ft_atoi(argv[1]))
+	id = -1;
+	while (++id < ft_atoi(argv[1]))
 	{
-		pthread_join(tid[i], NULL);
-		pthread_detach(tid[i]);
-		free(table[i]);
+		pthread_join(tid[id], NULL);
+		pthread_detach(tid[id]);
+		free(table[id]);
 	}
+	free(table);
 	return (0);
 }
 
