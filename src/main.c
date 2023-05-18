@@ -6,7 +6,7 @@
 /*   By: jlucas-s <jlucas-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/08 16:44:17 by jlucas-s          #+#    #+#             */
-/*   Updated: 2023/05/15 21:26:26 by jlucas-s         ###   ########.fr       */
+/*   Updated: 2023/05/18 20:20:56 by jlucas-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ t_philo	**init_all_philos(int num_philos, pthread_mutex_t *forks, char *argv[])
 	while (++id < num_philos)
 	{
 		table[id] = (t_philo *)malloc(sizeof(t_philo));
-		table[id]->id = id;
+		table[id]->id = id + 1;
 		table[id]->right_fork = &forks[id];
 		table[id]->left_fork = &forks[(id + 1) % num_philos];
 		table[id]->init_time = init_time;
@@ -64,17 +64,39 @@ int	arg_verification(int argc, char *argv[])
 	return (1);
 }
 
+void	*monitor(void *arg)
+{
+	t_philo	**philo;
+	int		id;
+
+	philo = (t_philo **)arg;
+	while (1)
+	{
+		id = -1;
+		while (philo[++id])
+		{
+			if ((timestamp(philo[id]->init_time) - philo[id]->last_eat) >= philo[id]->time_to_die)
+			{
+				*philo[id]->death = 1;
+				printf("%li %i died\n", timestamp(philo[id]->init_time), philo[id]->id);
+				return ((void *)NULL);
+			}
+		}
+		usleep(5000);
+	}
+
+	return ((void *)NULL);
+}
 
 int	main(int argc, char *argv[])
 {
-	pthread_t		tid[ft_atoi(argv[1])];
+	pthread_t		tid[ft_atoi(argv[1]) + 1];
 	pthread_mutex_t	forks[ft_atoi(argv[1])];
 	t_philo			**table;
 	long int		id;
 
 	if (!arg_verification(argc, argv))
 		return (1);
-
 	id = -1;
 	while (++id < ft_atoi(argv[1]))
 		pthread_mutex_init(&forks[id], NULL);
@@ -85,7 +107,8 @@ int	main(int argc, char *argv[])
 		if (pthread_create(&tid[id], NULL, routine, (void *)table[id]) != 0)
 			return (id + 10);
 	}
-
+	if (pthread_create(&tid[ft_atoi(argv[1])], NULL, monitor, (void *)table) != 0)
+			return (101);
 	id = -1;
 	while (++id < ft_atoi(argv[1]))
 	{
@@ -96,4 +119,3 @@ int	main(int argc, char *argv[])
 	free(table);
 	return (0);
 }
-
