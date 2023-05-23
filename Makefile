@@ -6,12 +6,12 @@
 #    By: jlucas-s <jlucas-s@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/12/09 00:10:02 by jlucas-s          #+#    #+#              #
-#    Updated: 2023/05/15 20:09:12 by jlucas-s         ###   ########.fr        #
+#    Updated: 2023/05/19 00:26:02 by jlucas-s         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME =			philo
-ARGS =			2 500 200 200
+ARGS =			4 400 200 200
 
 CC =			cc
 
@@ -25,7 +25,9 @@ RED =			\033[1;31m
 NOCOLOR =		\033[0m
 
 SRCS =			src/main.c		\
+				src/init.c		\
 				src/utils.c		\
+				src/threads.c	\
 				src/routines.c	\
 
 OBJS_DIR = 		./objects
