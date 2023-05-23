@@ -6,7 +6,7 @@
 /*   By: jlucas-s <jlucas-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 00:25:11 by jlucas-s          #+#    #+#             */
-/*   Updated: 2023/05/22 22:03:18 by jlucas-s         ###   ########.fr       */
+/*   Updated: 2023/05/22 22:14:20 by jlucas-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ void	*monitor(void *arg)
 			if ((timestamp(philo[id]->time->init) - philo[id]->last_eat) > philo[id]->time->to_die)
 			{
 				*philo[id]->had_deaths = TRUE;
-				printf("id = %i\n", philo[id]->id);
 				printf("%li %i died\n", timestamp(philo[id]->time->init), philo[id]->id);
 				return ((void *) NULL);
 			}
