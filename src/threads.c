@@ -6,7 +6,7 @@
 /*   By: jlucas-s <jlucas-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 00:25:11 by jlucas-s          #+#    #+#             */
-/*   Updated: 2023/05/22 22:14:20 by jlucas-s         ###   ########.fr       */
+/*   Updated: 2023/05/24 21:30:28 by jlucas-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 void	*routine(void *arg)
 {
 	t_philo	*philo;
+
 	philo = (t_philo *)arg;
 	while (*philo->had_deaths == FALSE)
 	{
@@ -29,38 +30,45 @@ void	*routine(void *arg)
 
 void	*monitor(void *arg)
 {
-	t_philo	**philo;
+	t_data	*data;
 	int		id;
 
-	philo = (t_philo **)arg;
+	data = (t_data *)arg;
 	while (1)
 	{
 		id = -1;
-		while (philo[++id])
+		while (++id < data->num_philos)
 		{
-			if ((timestamp(philo[id]->time->init) - philo[id]->last_eat) > philo[id]->time->to_die)
+			if ((timestamp(data->philos[id]->time->init) - \
+				data->philos[id]->last_eat) > data->philos[id]->time->to_die)
 			{
-				*philo[id]->had_deaths = TRUE;
-				printf("%li %i died\n", timestamp(philo[id]->time->init), philo[id]->id);
+				*data->philos[id]->had_deaths = TRUE;
+				printf("%li %i died\n", timestamp(data->philos[id]->time->init), \
+						data->philos[id]->id);
 				return ((void *) NULL);
 			}
 		}
-		usleep(5000);
+		usleep(50000);
 	}
 	return ((void *) NULL);
 }
 
-void	create_threads(pthread_t *tid, t_philo **philo, int num_threads)
+void	create_threads(t_data *data)
 {
 	int	id;
 	int	p_deaths;
 
 	p_deaths = FALSE;
 	id = -1;
-	while (++id < num_threads)
+	while (++id < data->num_philos)
 	{
-		philo[id]->had_deaths = &p_deaths;
-		pthread_create(&tid[id], NULL, routine, (void *)philo[id]);
+		data->philos[id]->had_deaths = &p_deaths;
+		pthread_create(&data->philos[id]->tid, NULL, routine, \
+		(void *)data->philos[id]);
 	}
-	pthread_create(&tid[id], NULL, monitor, (void *)philo);
+	pthread_create(&data->tid_monitor, NULL, monitor, (void *)data);
+	id = -1;
+	while (++id < data->num_philos)
+		pthread_join(data->philos[id]->tid, NULL);
+	pthread_join(data->tid_monitor, NULL);
 }
