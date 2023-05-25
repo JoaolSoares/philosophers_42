@@ -6,7 +6,7 @@
 /*   By: jlucas-s <jlucas-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/08 16:44:17 by jlucas-s          #+#    #+#             */
-/*   Updated: 2023/05/24 21:31:42 by jlucas-s         ###   ########.fr       */
+/*   Updated: 2023/05/24 23:38:30 by jlucas-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,25 @@ int	arg_verification(int argc, char *argv[])
 	i = 0;
 	while (argv[++i])
 	{
-		if (ft_atoi(argv[i]) < 0)
+		if (ft_atoi(argv[i]) <= 0)
 		{
 			write(STDERR_FILENO, \
-			"Error! Negative arguments is forbidden...\n", 42);
+			"Error! Negative or zeros arguments is forbidden...\n", 52);
 			return (0);
 		}
+	}
+	return (1);
+}
+
+int	one_philo(t_data *data)
+{
+	if (data->num_philos == 1)
+	{
+		printf("%li 1 has taken a fork\n", \
+				timestamp(data->philos[0]->time->init));
+		usleep(data->philos[0]->time->to_die * 1000);
+		printf("%li 1 died\n", timestamp(data->philos[0]->time->init));
+		return (0);
 	}
 	return (1);
 }
@@ -42,7 +55,8 @@ int	main(int argc, char *argv[])
 		return (1);
 	data = (t_data *)malloc(sizeof(t_data));
 	init_data(data, argv);
-	create_threads(data);
+	if (one_philo(data))
+		create_threads(data);
 	destroy_data(data);
 	return (0);
 }

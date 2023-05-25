@@ -6,7 +6,7 @@
 /*   By: jlucas-s <jlucas-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/19 00:25:11 by jlucas-s          #+#    #+#             */
-/*   Updated: 2023/05/24 21:30:28 by jlucas-s         ###   ########.fr       */
+/*   Updated: 2023/05/25 15:49:43 by jlucas-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,19 +28,33 @@ void	*routine(void *arg)
 	return ((void *) NULL);
 }
 
+int	everyone_eat(t_data *data)
+{
+	int	id;
+
+	if (data->philos[0]->max_eat == -1)
+		return (FALSE);
+	id = -1;
+	while (++id < data->num_philos)
+		if (data->philos[id]->eat_count < data->philos[id]->max_eat)
+			return (FALSE);
+	return (TRUE);
+}
+
 void	*monitor(void *arg)
 {
 	t_data	*data;
 	int		id;
 
 	data = (t_data *)arg;
-	while (1)
+	while (everyone_eat(data) == FALSE)
 	{
 		id = -1;
 		while (++id < data->num_philos)
 		{
 			if ((timestamp(data->philos[id]->time->init) - \
-				data->philos[id]->last_eat) > data->philos[id]->time->to_die)
+				data->philos[id]->last_eat) > data->philos[id]->time->to_die && \
+				data->philos[id]->eat_count != data->philos[id]->max_eat)
 			{
 				*data->philos[id]->had_deaths = TRUE;
 				printf("%li %i died\n", timestamp(data->philos[id]->time->init), \
@@ -48,7 +62,7 @@ void	*monitor(void *arg)
 				return ((void *) NULL);
 			}
 		}
-		usleep(50000);
+		usleep(5000);
 	}
 	return ((void *) NULL);
 }
